@@ -13,22 +13,16 @@ import androidx.core.view.WindowInsetsCompat
 import android.net.Uri
 
 
+
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
 
-    fun goToSecondActivity(view: View) {
-        val intent = Intent(this, Manhinh1::class.java)
-        startActivity(intent)
-    }
-
-    fun openWebsite(view: View) {
-        val url = "https://www.youtube.com/"
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivity(intent)
-        }
+        // Add CustomFragment to the activity
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, ExampleFragment())
+            .commit()
     }
 }

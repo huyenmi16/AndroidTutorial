@@ -1,24 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/buttonSecondActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Go to Second Activity"
-        android:onClick="goToSecondActivity" />
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <Button
-        android:id="@+id/buttonOpenWebsite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open Website"
-        android:layout_below="@id/buttonSecondActivity"
-        android:layout_marginTop="16dp"
-        android:onClick="openWebsite" />
 </RelativeLayout>
