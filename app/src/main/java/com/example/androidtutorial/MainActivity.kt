@@ -1,77 +1,90 @@
 package com.example.androidtutorial
 
 
-import android.content.Intent
+// MainActivity.kt
+import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.appcompat.app.ActionBarDrawerToggle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.navigation.NavigationView
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var viewPager: ViewPager2
-    private lateinit var tabLayout: TabLayout
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var fabAdd: FloatingActionButton
+    private lateinit var adapter: WordAdapter
+
+    private val wordList = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        drawerLayout = findViewById(R.id.drawer_layout)
-        viewPager = findViewById(R.id.view_pager)
-        tabLayout = findViewById(R.id.tab_layout)
-        val navigationView: NavigationView = findViewById(R.id.navigation_view)
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        recyclerView = findViewById(R.id.recyclerView)
+        fabAdd = findViewById(R.id.fabAdd)
 
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        // Initialize RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = WordAdapter(wordList)
+        recyclerView.adapter = adapter
 
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            menuItem.isChecked = true
-            drawerLayout.closeDrawers()
-
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                }
-                R.id.nav_headlines -> {
-                    // Handle Headlines navigation
-                }
-                R.id.nav_profile -> {
-                    // Handle Profile navigation
-                }
-                R.id.nav_settings -> {
-                    // Handle Settings navigation
-                }
-            }
-            true
+        // Set click listener for FAB to add a new word
+        fabAdd.setOnClickListener {
+            addWord()
         }
 
-        // Set up ViewPager with TabLayout
-        val adapter = ViewPagerAdapter(this)
-        viewPager.adapter = adapter
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = "Tab ${position + 1}"
-        }.attach()
+        // Populate initial dataset
+        wordList.addAll(generateInitialWords())
+        adapter.notifyDataSetChanged()
     }
 
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
+    private fun generateInitialWords(): List<String> {
+        return listOf("Hello", "World", "RecyclerView", "Example", "Android", "Kotlin")
+    }
+
+    private fun addWord() {
+        val newWord = "New Word ${wordList.size + 1}"
+        wordList.add(newWord)
+        adapter.notifyItemInserted(wordList.size - 1)
+        recyclerView.smoothScrollToPosition(wordList.size - 1)
+    }
+
+    // RecyclerView Adapter
+    private inner class WordAdapter(private val items: List<String>) :
+        RecyclerView.Adapter<WordAdapter.WordViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.list_item_word, parent, false)
+            return WordViewHolder(view)
+        }
+
+        @SuppressLint("ResourceAsColor")
+        override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
+            val word = items[position]
+            holder.textViewWord.text = word
+            holder.itemView.setOnClickListener {
+                // Handle click on item
+                // For now, just change background color to indicate selection
+                holder.itemView.setBackgroundColor(
+                    if (holder.itemView.isSelected) android.R.color.transparent else android.R.color.darker_gray
+                )
+                holder.itemView.isSelected = !holder.itemView.isSelected
+            }
+        }
+
+        override fun getItemCount(): Int {
+            return items.size
+        }
+
+        // ViewHolder
+        inner class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val textViewWord: TextView = itemView.findViewById(R.id.textViewWord)
         }
     }
 }
