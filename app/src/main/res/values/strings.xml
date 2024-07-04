@@ -3,5 +3,8 @@
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
     <string name="add_word">Thêm</string>
+    <string name="preference_file_key">file sharedPref</string>
+    <string name="saved_number_key">saved_number</string>
+
 
 </resources>

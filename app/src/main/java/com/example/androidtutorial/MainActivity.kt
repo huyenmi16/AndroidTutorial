@@ -2,89 +2,109 @@ package com.example.androidtutorial
 
 
 // MainActivity.kt
-import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var fabAdd: FloatingActionButton
-    private lateinit var adapter: WordAdapter
-
-    private val wordList = mutableListOf<String>()
+    private lateinit var sharedPref: SharedPreferences
+    private lateinit var textViewNumber: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        recyclerView = findViewById(R.id.recyclerView)
-        fabAdd = findViewById(R.id.fabAdd)
+        // Khởi tạo SharedPreferences
+        sharedPref = getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
 
-        // Initialize RecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = WordAdapter(wordList)
-        recyclerView.adapter = adapter
+        // Ánh xạ các thành phần giao diện
+        textViewNumber = findViewById(R.id.textViewNumber)
 
-        // Set click listener for FAB to add a new word
-        fabAdd.setOnClickListener {
-            addWord()
+        // Thiết lập sự kiện cho các nút màu
+        findViewById<Button>(R.id.btnColorBlue).setOnClickListener {
+            changeBackgroundColor(Color.BLUE)
         }
 
-        // Populate initial dataset
-        wordList.addAll(generateInitialWords())
-        adapter.notifyDataSetChanged()
+        findViewById<Button>(R.id.btnColorRed).setOnClickListener {
+            changeBackgroundColor(Color.RED)
+        }
+
+        findViewById<Button>(R.id.btnColorPurple).setOnClickListener {
+            changeBackgroundColor(Color.MAGENTA)
+        }
+
+        findViewById<Button>(R.id.btnColorYellow).setOnClickListener {
+            changeBackgroundColor(Color.YELLOW)
+        }
+
+        // Thiết lập sự kiện cho nút Count
+        findViewById<Button>(R.id.btnCount).setOnClickListener {
+            incrementNumber()
+        }
+
+        // Thiết lập sự kiện cho nút Reset
+        findViewById<Button>(R.id.btnReset).setOnClickListener {
+            resetValues()
+        }
+
+        // Hiển thị giá trị ban đầu từ SharedPreferences
+        displaySavedValues()
     }
 
-    private fun generateInitialWords(): List<String> {
-        return listOf("Hello", "World", "RecyclerView", "Example", "Android", "Kotlin")
+    private fun incrementNumber() {
+        // Đọc giá trị hiện tại từ SharedPreferences
+        val currentValue = sharedPref.getInt(getString(R.string.saved_number_key), 0)
+
+        // Tăng giá trị
+        val newValue = currentValue + 1
+
+        // Lưu giá trị mới vào SharedPreferences
+        with(sharedPref.edit()) {
+            putInt(getString(R.string.saved_number_key), newValue)
+            apply()
+        }
+
+        // Hiển thị giá trị mới lên TextView
+        textViewNumber.text = newValue.toString()
     }
 
-    private fun addWord() {
-        val newWord = "New Word ${wordList.size + 1}"
-        wordList.add(newWord)
-        adapter.notifyItemInserted(wordList.size - 1)
-        recyclerView.smoothScrollToPosition(wordList.size - 1)
+    private fun changeBackgroundColor(color: Int) {
+        // Lưu mã màu vào SharedPreferences
+        with(sharedPref.edit()) {
+            // Ví dụ: putInt(getString(R.string.saved_color_key), color)
+            apply()
+        }
+
+        // Đổi màu nền của rootView
+        findViewById<TextView>(R.id.textViewNumber).setBackgroundColor(color)
     }
 
-    // RecyclerView Adapter
-    private inner class WordAdapter(private val items: List<String>) :
-        RecyclerView.Adapter<WordAdapter.WordViewHolder>() {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.list_item_word, parent, false)
-            return WordViewHolder(view)
+    private fun resetValues() {
+        // Xóa các giá trị từ SharedPreferences
+        with(sharedPref.edit()) {
+            remove(getString(R.string.saved_number_key))
+            // Xóa giá trị màu nền nếu cần
+            // Ví dụ: remove(getString(R.string.saved_color_key))
+            apply()
         }
 
-        @SuppressLint("ResourceAsColor")
-        override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
-            val word = items[position]
-            holder.textViewWord.text = word
-            holder.itemView.setOnClickListener {
-                // Handle click on item
-                // For now, just change background color to indicate selection
-                holder.itemView.setBackgroundColor(
-                    if (holder.itemView.isSelected) android.R.color.transparent else android.R.color.darker_gray
-                )
-                holder.itemView.isSelected = !holder.itemView.isSelected
-            }
-        }
+        // Đặt lại giá trị mặc định cho TextView và màu nền
+        textViewNumber.text = "0"
+        findViewById<TextView>(R.id.textViewNumber).setBackgroundColor(Color.WHITE)
+    }
 
-        override fun getItemCount(): Int {
-            return items.size
-        }
+    private fun displaySavedValues() {
+        // Đọc và hiển thị giá trị đã lưu từ SharedPreferences
+        val savedNumber = sharedPref.getInt(getString(R.string.saved_number_key), 0)
+        textViewNumber.text = savedNumber.toString()
 
-        // ViewHolder
-        inner class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val textViewWord: TextView = itemView.findViewById(R.id.textViewWord)
-        }
+        // Đọc và áp dụng màu nền đã lưu (nếu có)
+        // Ví dụ: val savedColor = sharedPref.getInt(getString(R.string.saved_color_key), Color.WHITE)
+        // findViewById<TextView>(R.id.textViewNumber).setBackgroundColor(savedColor)
     }
 }
